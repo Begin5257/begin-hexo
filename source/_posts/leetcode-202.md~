@@ -1,0 +1,38 @@
+title: leetcode-202
+date: 2016-02-15 18:02:36
+categories: leetcode #文章文类
+tags: [leetcode] #文章标签，多于一项时用这种格式
+---
+Write an algorithm to determine if a number is "happy".
+
+A happy number is a number defined by the following process:Starting with any positive integer, replace the number by the sum of the squares of its digits, and repeat the process until the number equals 1 (where it will stay), or it loops endlessly in a cycle which does not include 1. Those numbers for which this process ends in 1 are happy numbers.
+
+Example: 19 is a happy number
+
+12 + 92 = 82
+82 + 22 = 68
+62 + 82 = 100
+12 + 02 + 02 = 1
+```
+    /**
+     * @param {number} n
+     * @return {boolean}
+     */
+function isHappy(n) {
+        var i=0;
+        while(n!=1){
+            var sum =0;
+            while(n>=10){
+                sum+=(n%10)*(n%10);
+                n=Math.floor(n/10);
+            }
+            sum+=n*n;
+            n=sum;
+            i++;
+            if(i>5&&sum!=1){
+                return false;
+            }
+        }
+        return true;
+    }
+```

@@ -1,0 +1,27 @@
+title: leetcode-119
+date: 2016-02-15 22:07:36
+categories: leetcode #文章文类
+tags: [leetcode] #文章标签，多于一项时用这种格式
+---
+Given an index k, return the kth row of the Pascal's triangle.
+
+For example, given k = 3,
+Return [1,3,3,1].
+
+```
+function getRow(rowIndex) {
+        var leng = rowIndex+1;
+        var number = new Array(leng);
+        for(var k=0;k<leng;k++){
+            number[k]=new Array(k+1);
+            number[k][0]=1;
+            number[k][k]=1;
+        }
+        for(var m=2;m<leng;m++){
+            for(var n=1;n<m;n++){
+                number[m][n]=number[m-1][n-1] +number[m-1][n];
+            }
+        }
+        return number[rowIndex];
+    }
+```

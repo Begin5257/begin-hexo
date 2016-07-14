@@ -1,0 +1,166 @@
+title: JavaScript-Summary(递归、闭包)
+date: 2016-02-09 10:05:29 
+categories: 归纳整理 #文章文类
+tags: [JavaScript] #文章标签，多于一项时用这种格式
+---
+假期来复习一下JavaScript，先从递归和闭包开始。
+
+
+1.函数的声明方式有两种，一是函数声明，一是函数表达式。
+
+```
+function sayHi(){
+   alert("Hi"); 
+}
+sayHi();
+```
+```
+var sayHi = function(){
+    alert("Hi");
+}
+sayHi();//错误：函数不存在
+```
+
+2.递归
+   一个简单的递归阶乘函数
+```
+function factorial (num){
+  if(num <=1 ){
+      return 1;
+  } else {
+   return num * factorial (num-1);
+  //return num * arguments.callee (num-1);
+  //使用arguments.callee 比函数名更保险
+  //but 严格模式下此属性被禁用
+  } 
+}
+```
+arguments.callee是一个指向正在执行函数的指针，可以利用它实现对函数的递归调用
+或者采用命名函数表达式的方法
+```
+var factorial = (function f (num){
+     if(num <=1 ){
+        return 1;
+    } else {
+        return num * f (num-1);
+})
+```
+将命名为f() 的函数表达式赋值给 factorial，即使函数赋值给另一变量，递归也能正常的进行
+
+3.闭包
+  由于在Javascript语言中，只有函数内部的子函数才能读取局部变量，因此可以把闭包简单理解成"定义在一个函数内部的函数。
+  在调用每个匿名函数时，立刻执行该匿名函数的结果赋值给数组。由于函数参数是按值传递的，因此就会将变量i的当前值赋值给参数num
+```
+function createFunction(){
+    var result = new Array();
+    
+    for(var i=0 ; i<10 ;i++){
+        result[i] = function (num) {
+            return funtion(){
+                return num;    
+            }
+        }(i);
+    }
+    return result;
+}
+```
+一个有趣的例子
+```
+function makeAdder(x) {
+  return function(y) {
+    return x + y;
+  };
+}
+ 
+var add5 = makeAdder(5);
+var add10 = makeAdder(10);
+ 
+console.log(add5(2));  // 7
+console.log(add10(2)); // 12
+```
+add5 和 add10 都是闭包。它们共享相同的函数定义，但是保存了不同的环境。在 add5 的环境中，x 为 5。
+而在 add10 中，x 则为 10。
+
+4.关于this
+```
+var name = "The Window";
+var object = {
+    name : "My Object",
+    getNameFunc : function(){
+        return function(){
+            return this.name;
+        };
+    }
+};
+
+alert(object.getNameFunc()()); //"The Window"
+
+```
+
+内部函数永远不可能直接访问到外部函数的argument对象和this对象，因此返回了全局name变量的值。
+如果把外部作用域中的this对象保存在一个闭包可以访问的变量中，就可以让闭包访问该对象了~
+
+```
+var name = "The Window";
+　　var object = {
+　　　　name : "My Object",
+　　　　getNameFunc : function(){
+　　　　　　var that = this;
+　　　　　　return function(){
+　　　　　　　　return that.name;
+　　　　　　};
+　　　　}
+　　};
+alert(object.getNameFunc()());//“The Object”
+```
+
+5.块级作用域
+用作块级作用域的匿名函数的语法如下：
+```
+( function( ) {
+    //code
+}) ( );
+```
+无论在什么地方，只要临时需要一些变量，就可以使用私有作用域。
+```
+function outputNumbers ( count ) { 
+    (function () {
+        for( var i=0; i <count ;i++){
+            alert(i);
+        }
+    })( );
+    alert(i); // i is not defined
+}
+```
+6.用闭包模拟私有方法
+```
+var makeCounter = function() {
+  var privateCounter = 0;
+  function changeBy(val) {
+    privateCounter += val;
+  }
+  return {
+    increment: function() {
+      changeBy(1);
+    },
+    decrement: function() {
+      changeBy(-1);
+    },
+    value: function() {
+      return privateCounter;
+    }
+  } 
+};
+ 
+var Counter1 = makeCounter();
+var Counter2 = makeCounter();
+console.log(Counter1.value()); //0
+Counter1.increment();
+Counter1.increment();
+console.log(Counter1.value()); //2
+Counter1.decrement();
+console.log(Counter1.value()); //1
+console.log(Counter2.value()); //0
+```
+两个计数器是有各自的独立性的。每次调用 makeCounter() 函数期间，其环境是不同的。
+参考：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Closures

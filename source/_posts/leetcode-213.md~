@@ -1,0 +1,21 @@
+title: leetcode-213
+date: 2016-02-15 19:02:36
+categories: leetcode #文章文类
+tags: [leetcode] #文章标签，多于一项时用这种格式
+---
+Given an integer, write a function to determine if it is a power of two.
+
+```
+/**
+     * @param {number} n
+     * @return {boolean}
+     */
+    function isPowerOfTwo(n) {
+        if (n%2 != 0 && n != 1) return false;
+        else if(n < 2 && n != 1) return false;
+        else if(n == 2) return true;
+        else if(n == 1) return true;
+        else
+            return isPowerOfTwo(n/2);
+    }
+```

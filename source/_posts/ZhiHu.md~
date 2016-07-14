@@ -1,0 +1,92 @@
+title: ZhiHu开发
+date: 2016-02-09 15:48:36
+categories: 开发总结 #文章文类
+tags: [express] #文章标签，多于一项时用这种格式
+---
+这是放假前还在学校时刚刚入手node做的一个知乎，如下：
+效果如下：![](http://img4.duitang.com/uploads/item/201602/09/20160209165737_wUMCi.thumb.700_0.png)
+github地址： https://github.com/Begin5257/ZhiHU.git
+1.18
+打算利用博客来记录每天遇到的问题以及明天要解决的一些问题～
+最近在练习使用node，利用express＋MongoDB，用jade模版引擎写个知乎。
+今天解决的问题：
+question1：Linux下直接安装MongoDB版本为2.4.9（此版本新增用户是使用了addUser的命令且与2.6.5版本后的写法有较多不同），建议从官网直接选择合适版本下载安装。
+
+question2：安装最新版，卸载掉之前的版本后。Mongo命令行版本仍显示为2.4.9，切换数据库到根目录之后，命令行版本就更新了。
+
+question3：jQuery的Ajax写法较原生写法更为方便，兼容性更强。url直接写相对路径即可，例如／index
+
+questoin4：在admin里没有增加用户之前，访问MongoDB数据库时不需要用户名和密码。如果此时输入用户名和密码会显示认证失败。但在admin中增加用户之后，就需要有用户名和密码的认证了。 
+
+question5：mongoose是集成较好的MongoDB框架。要理解Schema，Model以及Entity的含义以及增删改查的写法。
+
+明天的任务：
+question1：点击提问后全屏变暗并且出现提问框的js实现
+
+question2：如何关联ask表与answer表
+
+question3：循环取出的数据增加新的li元素
+
+效果如下：![](http://img5.duitang.com/uploads/item/201602/09/20160209165726_Sha8x.png)
+1.19
+今天解决的问题比较多＝ ＝
+一个一个来说吧：）
+question1：实现全屏变黑出现弹出框：写一个width，height均为100％，opacity为50％的div即可，注意position为absolute。
+ 
+question2：mongoose自带可以关联父表和子表的方法。
+```
+var answerSchema = mongoose.Schema({
+    askid:{type:mongoose.Schema.Types.ObjectId,ref:'ask'},
+    content:{type:String}
+});
+```
+给每个answer增加一个askid，完成ask和answer的关联。
+
+question3：jade自带for循环。
+```
+ul.ask-demo 
+ each date,index in ask
+  li.ask-li
+   h2.ask-title #{date.title}
+   p.ask-content  #{date.content}
+``` 
+此外，lade自带模板引擎还支持while、if、each语句
+
+question4：在routes中另外建一个文件mongo存放数据库操作的方法。
+将方法export给对应的views，但是注意一个页面只能接受一个方法。
+可以在方法中同时完成几种操作。
+
+var mongo = require('./'mongo.js);
+router.get('/' , mongo.askFind);
+
+注意的是：
+1、require文件的时候，一定要加./，不然node会认为mongo是库函数
+2、导出的方法（askFind）不是函数，后面不可以加（）
+3、此外，调用router函数，及express函数的时候，参数req一定要写在res的前面
+ 
+question5：在people页面增加回答时，POST方法的url应该是相较于'／'而言的。
+app.js页面规定了app.use('/people',people);
+因此post的ur应该为／people／people
+ 
+明天要解决的问题：
+question1：jade的if判断
+question2: 登录保持
+收获：多研究官方文档，英文其实还蛮好懂的～
+
+1.20
+昨天遇到了一个非常灵异的问题。
+使用jade渲染时，使用了一个if判断，
+
+if data.id＝＝answer.askid
+    p lalala
+p ＃{data.id==answer.askid}
+
+然而，明明是相等的两个值，一直判断为false，我曾经一度怀疑自己瞎掉了（sad）
+查询官方文档后发现官方给出的示例是这样的：
+
+if user＝＝'description'
+     then hahahahha
+
+于是将ask和answer两个table console出来之后发现，啊，askid的type是number，而data.id是string，这有什么问题呢，问题就是askid不是String对象。
+将askid的Schema类型改为String后就可以成功判断啦～
+
